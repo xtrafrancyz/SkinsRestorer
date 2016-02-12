@@ -24,8 +24,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.comphenix.protocol.wrappers.WrappedSignedProperty;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 
 import skinsrestorer.bukkit.SkinsRestorer;
 
@@ -59,11 +60,10 @@ public class DefaultLoginListener implements Listener {
 		final Player player = event.getPlayer();
 		SkinProfile skinprofile = SkinStorage.getInstance().getOrCreateSkinData(player.getName());
 		skinprofile.applySkin(property -> {
-			WrappedGameProfile wrappedprofile = WrappedGameProfile.fromPlayer(player);
-			WrappedSignedProperty wrappedproperty = WrappedSignedProperty.fromValues(property.getName(), property.getValue(), property.getSignature());
-			if (!wrappedprofile.getProperties().containsKey(wrappedproperty.getName())) {
-				wrappedprofile.getProperties().put(wrappedproperty.getName(), wrappedproperty);
-			}
+                    GameProfile profile = ((CraftPlayer)player).getHandle().getProfile();
+                    Property authlibProperty = new Property(property.getName(), property.getValue(), property.getSignature());
+                    if (!profile.getProperties().containsKey(authlibProperty.getName()))
+                        profile.getProperties().put(authlibProperty.getName(), authlibProperty);
 		});
 	}
 
