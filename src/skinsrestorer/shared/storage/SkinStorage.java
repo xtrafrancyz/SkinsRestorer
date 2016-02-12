@@ -18,42 +18,25 @@
 package skinsrestorer.shared.storage;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
-import skinsrestorer.libs.com.google.gson.Gson;
-import skinsrestorer.libs.com.google.gson.GsonBuilder;
-import skinsrestorer.libs.com.google.gson.JsonIOException;
-import skinsrestorer.libs.com.google.gson.reflect.TypeToken;
 import skinsrestorer.shared.format.Profile;
 import skinsrestorer.shared.format.SkinProfile;
-import skinsrestorer.shared.utils.IOUils;
 
 public class SkinStorage {
-
 	private static final SkinStorage instance = new SkinStorage();
 
 	public static SkinStorage getInstance() {
 		return instance;
 	}
 
-	private static final String cachefile = "cache.json";
-	private static final Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(SkinProfile.class, new SkinProfile.GsonTypeAdapter()).setPrettyPrinting().create();
-	private static final Type type = new TypeToken<Map<String, SkinProfile>>(){}.getType();
-
 	protected static File pluginfolder;
 
 	public static void init(File pluginfolder) {
 		SkinStorage.pluginfolder = pluginfolder;
-		instance.loadData();
 	}
 
-	private final ConcurrentHashMap<String, SkinProfile> skins = new ConcurrentHashMap<String, SkinProfile>();
+	private final ConcurrentHashMap<String, SkinProfile> skins = new ConcurrentHashMap<>();
 
 	public boolean isSkinDataForced(String name) {
 		SkinProfile profile = skins.get(name.toLowerCase());
@@ -74,31 +57,4 @@ public class SkinStorage {
 	public SkinProfile getOrCreateSkinData(String name) {
 		return skins.compute(name.toLowerCase(), (playername, profile) -> profile != null ? profile : new SkinProfile(new Profile(null, playername), null, 0, false));
 	}
-
-
-	public void loadData() {
-		try (InputStreamReader reader = IOUils.createReader(new File(pluginfolder, cachefile))) {
-			Map<String, SkinProfile> gsondata = gson.fromJson(reader, type);
-			if (gsondata != null) {
-				skins.putAll(gsondata);
-			}
-		} catch (JsonIOException | IOException e) {
-		}
-	}
-
-	public void saveData() {
-		pluginfolder.mkdirs();
-		try (OutputStreamWriter writer = IOUils.createWriter(new File(pluginfolder, cachefile))) {
-			gson.toJson(
-				skins.entrySet()
-				.stream()
-				.filter(entry -> entry.getValue().shouldSerialize())
-				.collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())),
-				type, writer
-			);
-		} catch (JsonIOException | IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 }

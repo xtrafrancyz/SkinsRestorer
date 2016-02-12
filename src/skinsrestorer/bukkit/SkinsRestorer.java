@@ -17,58 +17,39 @@
 
 package skinsrestorer.bukkit;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import skinsrestorer.bukkit.commands.AdminCommands;
-import skinsrestorer.bukkit.commands.PlayerCommands;
 import skinsrestorer.bukkit.listeners.DefaultLoginListener;
-import skinsrestorer.shared.storage.CooldownStorage;
-import skinsrestorer.shared.storage.LocaleStorage;
 import skinsrestorer.shared.storage.SkinStorage;
 
 public class SkinsRestorer extends JavaPlugin implements Listener {
 
-	public static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private static SkinsRestorer instance;
+    public static SkinsRestorer getInstance() {
+        return instance;
+    }
 
-	private static SkinsRestorer instance;
-	public static SkinsRestorer getInstance() {
-		return instance;
-	}
+    private Logger log;
+    public void logInfo(String message) {
+        log.info(message);
+    }
 
-	private Logger log;
-	public void logInfo(String message) {
-		log.info(message);
-	}
+    @Override
+    public void onEnable() {
+        instance = this;
+        log = getLogger();
+        SkinStorage.init(getDataFolder());
+        getCommand("skinsrestorer").setExecutor(new AdminCommands());
+        getServer().getPluginManager().registerEvents(new DefaultLoginListener(), this);
+    }
 
-	@Override
-	public void onEnable() {
-		instance = this;
-		log = getLogger();
-		LocaleStorage.init(getDataFolder());
-		SkinStorage.init(getDataFolder());
-		getCommand("skinsrestorer").setExecutor(new AdminCommands());
-		getCommand("skin").setExecutor(new PlayerCommands());
-		PluginManager pm = getServer().getPluginManager();
-		if (pm.isPluginEnabled("ProtocolLib")) {
-			pm.registerEvents(new DefaultLoginListener(), this);
-		} else {
-			throw new RuntimeException("You need either ProtocolSupport or ProtocolLib for this plugin to function");
-		}
-		executor.scheduleWithFixedDelay(CooldownStorage.cleanupCooldowns, 0, 1, TimeUnit.MINUTES);
-	}
-
-	@Override
-	public void onDisable() {
-		SkinStorage.getInstance().saveData();
-		executor.shutdown();
-		instance = null;
-	}
+    @Override
+    public void onDisable() {
+        instance = null;
+    }
 
 }

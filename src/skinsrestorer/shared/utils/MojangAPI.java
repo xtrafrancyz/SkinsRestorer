@@ -38,7 +38,7 @@ import skinsrestorer.shared.utils.apacheutils.IOUtils;
 
 public class MojangAPI {
 
-	private static final String profileurl = "https://api.mojang.com/profiles/minecraft";
+	private static final String profileurl = "http://mc.vimeworld.ru/session/uuid.php";
 	public static Profile getProfile(String nick) throws SkinFetchFailedException, IOException, ParseException {
 		//open connection
 		HttpURLConnection connection = (HttpURLConnection) setupConnection(new URL(profileurl));
@@ -65,10 +65,10 @@ public class MojangAPI {
 		throw new SkinFetchFailedException(SkinFetchFailedException.Reason.NO_PREMIUM_PLAYER);
 	}
 
-	private static final String skullbloburl = "https://sessionserver.mojang.com/session/minecraft/profile/";
+	private static final String skullbloburl = "http://mc.vimeworld.ru/session/profile.php?uuid=";
 	public static SkinProfile getSkinProfile(String id) throws IOException, ParseException, SkinFetchFailedException {
 		//open connection
-		HttpURLConnection connection =  (HttpURLConnection) setupConnection(new URL(skullbloburl+id.replace("-", "")+"?unsigned=false"));
+		HttpURLConnection connection =  (HttpURLConnection) setupConnection(new URL(skullbloburl+id.replace("-", "")));
 		//check response code
 		if (connection.getResponseCode() == 429) {
 			throw new SkinFetchFailedException(SkinFetchFailedException.Reason.RATE_LIMITED);

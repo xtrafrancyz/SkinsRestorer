@@ -22,7 +22,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import skinsrestorer.bukkit.SkinsRestorer;
 import skinsrestorer.shared.storage.SkinStorage;
 import skinsrestorer.shared.utils.SkinFetchUtils.SkinFetchFailedException;
 
@@ -40,20 +39,13 @@ public class AdminCommands implements CommandExecutor {
 			return true;
 		} else
 		if ((args.length == 2) && args[0].equalsIgnoreCase("update")) {
-			SkinsRestorer.executor.execute(
-				new Runnable() {
-					@Override
-					public void run() {
-						String name = args[1];
-						try {
-							SkinStorage.getInstance().getOrCreateSkinData(name).attemptUpdate();
-							sender.sendMessage(ChatColor.BLUE+"Skin data updated");
-						} catch (SkinFetchFailedException e) {
-							sender.sendMessage(ChatColor.RED+"Skin fetch failed: "+e.getMessage());
-						}
-					}
-				}
-			);
+            String name = args[1];
+            try {
+                SkinStorage.getInstance().getOrCreateSkinData(name).attemptUpdate();
+                sender.sendMessage(ChatColor.BLUE+"Skin data updated");
+            } catch (SkinFetchFailedException e) {
+                sender.sendMessage(ChatColor.RED+"Skin fetch failed: "+e.getMessage());
+            }
 			return true;
 		}
 		return false;

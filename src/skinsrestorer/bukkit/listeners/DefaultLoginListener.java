@@ -60,10 +60,10 @@ public class DefaultLoginListener implements Listener {
 		final Player player = event.getPlayer();
 		SkinProfile skinprofile = SkinStorage.getInstance().getOrCreateSkinData(player.getName());
 		skinprofile.applySkin(property -> {
-                    GameProfile profile = ((CraftPlayer)player).getHandle().getProfile();
-                    Property authlibProperty = new Property(property.getName(), property.getValue(), property.getSignature());
-                    if (!profile.getProperties().containsKey(authlibProperty.getName()))
-                        profile.getProperties().put(authlibProperty.getName(), authlibProperty);
+            GameProfile profile = ((CraftPlayer)player).getHandle().getProfile();
+            Property authlibProperty = new Property(property.getName(), property.getValue(), property.getSignature());
+            if (!profile.getProperties().containsKey(authlibProperty.getName()))
+                profile.getProperties().put(authlibProperty.getName(), authlibProperty);
 		});
 	}
 
